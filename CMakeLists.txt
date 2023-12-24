@@ -15,6 +15,7 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem regex system REQUIRED)
+find_package(Eigen3)
 
 set(Boost_USE_STATIC_LIBS ON)
 include_directories(${Boost_INCLUDE_DIR})
@@ -38,7 +39,7 @@ else ()
     )
 endif ()
 
-target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen)
 target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic -Werror)
 
 
