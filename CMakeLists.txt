@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets PrintSupport REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets PrintSupport REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem regex system REQUIRED)
 find_package(Eigen3)
@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
         src/widgets/mainwindow.cpp
         src/widgets/mainwindow.h
         src/widgets/mainwindow.ui
+        src/widgets/qcustomplot.cpp
+        src/widgets/qcustomplot.h
         src/domain/radargram.cpp
 )
 
@@ -39,8 +41,8 @@ else ()
     )
 endif ()
 
-target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen)
-target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic -Werror)
+target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen Qt6::PrintSupport)
+target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic)
 
 
 set_target_properties(gpr_reader PROPERTIES
