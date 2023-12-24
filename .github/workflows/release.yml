@@ -17,7 +17,6 @@ jobs:
           submodules: true
       - run: |
           sudo apt-get update && sudo apt-get install cmake libboost-test-dev -y && sudo apt install libboost-all-dev qtbase5-dev qt6-base-dev -y
-#          sudo apt-get update && sudo apt-get install cmake libboost-test-dev qtbase5-dev qt6-base-dev libboost-test-dev -y
           cmake . -DPATCH_VERSION=${{ github.run_number }}
           cmake --build .
           cmake --build . --target test
