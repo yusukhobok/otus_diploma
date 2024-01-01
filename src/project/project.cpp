@@ -4,12 +4,11 @@
 #include "project.h"
 
 
-Project::Project():
-    traces_count(0),
-    samples_count(0),
-    radargram(std::make_shared<Radargram>()),
-    depth_section(std::make_shared<DepthSection>()),
-    trajectory(std::make_shared<Trajectory>())
+Project::Project(std::shared_ptr<Radargram> radargram):
+    traces_count(radargram->trace_matrix.rows()),
+    samples_count(radargram->trace_matrix.cols()),
+    radargram(std::move(radargram)),
+    depth_section(std::make_shared<DepthSection>())
 {
 }
 

@@ -4,10 +4,9 @@
 
 #include <eigen3/Eigen/Core>
 
-using Eigen::VectorXd;
 
 class DepthSection {
-    VectorXd depth_vector;
+    Eigen::VectorXf depth_vector;
 };
 
 

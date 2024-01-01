@@ -16,6 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets PrintSupport REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem regex system REQUIRED)
 find_package(Eigen3)
+find_package(fmt)
 
 set(Boost_USE_STATIC_LIBS ON)
 include_directories(${Boost_INCLUDE_DIR})
@@ -31,7 +32,6 @@ set(PROJECT_SOURCES
         src/domain/radargram.hpp
         src/domain/attribute_analysis.hpp
         src/domain/depth_section.hpp
-        src/domain/trajectory.hpp
         src/domain/layer.hpp
 
         src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
@@ -39,6 +39,8 @@ set(PROJECT_SOURCES
         src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
 
         src/importers/geoscan_project_importer.cpp
+
+        src/utils/helpers.hpp
 
         src/project/project.cpp
 )
@@ -54,7 +56,8 @@ else ()
     )
 endif ()
 
-target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen Qt6::PrintSupport)
+target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen Qt6::PrintSupport fmt::fmt)
+#target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic -Werror)
 target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic)
 
 

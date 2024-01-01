@@ -8,7 +8,6 @@
 #include "src/domain/attribute_analysis.hpp"
 #include "src/domain/depth_section.hpp"
 #include "src/domain/layer.hpp"
-#include "src/domain/trajectory.hpp"
 #include "src/calculators/attribute_analysis_calculator/attribute_analysis_calculator.h"
 #include "src/calculators/depth_section_calculator/depth_section_calculator.h"
 
@@ -19,10 +18,9 @@ private:
     std::shared_ptr<Radargram> radargram;
     std::shared_ptr<AttributeAnalysis> attribute_analysis;
     std::shared_ptr<DepthSection> depth_section;
-    std::shared_ptr<Trajectory> trajectory;
     std::vector<std::shared_ptr<Layer>> layers;
 public:
-    Project();
+    Project(std::shared_ptr<Radargram> radargram);
     bool validate();
     void reflect();
     void remove_trace(float distance__m);

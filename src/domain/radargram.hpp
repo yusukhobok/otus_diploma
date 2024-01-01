@@ -8,13 +8,10 @@
 
 #include "attribute_analysis.hpp"
 #include "depth_section.hpp"
-#include "trajectory.hpp"
-
-using Eigen::MatrixXd;
 
 
 struct Radargram {
-    MatrixXd trace_matrix;
+    Eigen::MatrixXf trace_matrix;
     float delta_distance__m;
     float delta_time__ns;
     std::string gpr_unit;

@@ -7,7 +7,7 @@
 
 class ProjectImporter {
 public:
-    virtual std::shared_ptr<Project> import(std::string filename) = 0;
+    virtual std::shared_ptr<Project> import(const std::string& filename) = 0;
 };
 
 

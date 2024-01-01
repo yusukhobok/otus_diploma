@@ -3,10 +3,9 @@
 
 #include <eigen3/Eigen/Core>
 
-using Eigen::MatrixXd;
 
 struct AttributeAnalysis {
-    MatrixXd attribute_matrix;
+    Eigen::MatrixXf attribute_matrix;
     std::string name;
 };
 
