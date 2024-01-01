@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../src/domain/radargram.h"
+#include "../src/domain/radargram.hpp"
 
 TEST(
         ExampleTests,

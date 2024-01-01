@@ -27,7 +27,20 @@ set(PROJECT_SOURCES
         src/widgets/mainwindow.ui
         src/widgets/qcustomplot.cpp
         src/widgets/qcustomplot.h
-        src/domain/radargram.cpp
+
+        src/domain/radargram.hpp
+        src/domain/attribute_analysis.hpp
+        src/domain/depth_section.hpp
+        src/domain/trajectory.hpp
+        src/domain/layer.hpp
+
+        src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
+        src/calculators/attribute_analysis_calculator/hilbert_attribute_analysis_calculator.cpp
+        src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
+
+        src/importers/geoscan_project_importer.cpp
+
+        src/project/project.cpp
 )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -71,7 +84,6 @@ target_link_libraries(GTest::GTest INTERFACE gtest_main gmock_main)
 
 set(TEST_SOURCES
         tests/test_example.cpp
-        src/domain/radargram.cpp
 )
 
 add_executable(gpr_reader_test ${TEST_SOURCES})
