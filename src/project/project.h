@@ -11,8 +11,7 @@
 #include "src/calculators/attribute_analysis_calculator/attribute_analysis_calculator.h"
 #include "src/calculators/depth_section_calculator/depth_section_calculator.h"
 #include "src/domain/trajectory.hpp"
-#include "src/snapshot/snapshot.h"
-#include "src/trajectory_exporters/trajectory_exporter.hpp"
+#include "src/trajectory_importers/trajectory_importer.hpp"
 
 class Project {
 private:
@@ -34,7 +33,7 @@ public:
     void remove_air_wave();
     void calculate_depth_section(std::shared_ptr<IDepthSectionCalculator> calculator);
     void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> calculator);
-    void export_trajectory(std::shared_ptr<ITrajectoryExporter> trajectory_exporter, const std::string& filename);
+    void import_trajectory(std::shared_ptr<ITrajectoryImporter> trajectory_importer, const std::string& filename);
     void add_layer(const Layer& layer);
     void clear_layers();
     void export_layers_to_csv(std::string filename);

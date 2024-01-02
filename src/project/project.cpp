@@ -188,8 +188,8 @@ void Project::calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCal
 }
 
 
-void Project::export_trajectory(std::shared_ptr<ITrajectoryExporter> trajectory_exporter, const std::string& filename) {
-    *trajectory = trajectory_exporter->export_trajectory(trace_count, filename);
+void Project::import_trajectory(std::shared_ptr<ITrajectoryImporter> trajectory_importer, const std::string& filename) {
+    *trajectory = trajectory_importer->import_trajectory(trace_count, filename);
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
     }

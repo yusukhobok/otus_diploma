@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
-#include "csv_trajectory_exporter.h"
+#include "csv_trajectory_importer.h"
 
-std::vector<std::string> CsvTrajectoryExporter::read_csv(const std::string& filename) {
+std::vector<std::string> CsvTrajectoryImporter::read_csv(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Ошибка открытия CSV файла.");
@@ -17,7 +17,7 @@ std::vector<std::string> CsvTrajectoryExporter::read_csv(const std::string& file
 }
 
 
-Trajectory CsvTrajectoryExporter::export_trajectory(int trace_count, const std::string& filename) {
+Trajectory CsvTrajectoryImporter::import_trajectory(int trace_count, const std::string& filename) {
     std::vector<std::string> lines = read_csv(filename);
     if (static_cast<int>(lines.size()) != trace_count) {
         throw std::runtime_error("Некорректное количество строк в файле.");

@@ -39,7 +39,7 @@ set(PROJECT_SOURCES
         src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp
         src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
 
-        src/trajectory_exporters/csv_trajectory_exporter.cpp
+        src/trajectory_importers/csv_trajectory_importer.cpp
 
         src/importers/geoscan_project_importer.cpp
 
