@@ -4,6 +4,7 @@ const int COSINE_PHASE_FACTOR = 10;
 
 AttributeAnalysis CosinePhaseAttributeAnalysisCalculator::calculate(const Radargram& radargram){
     AttributeAnalysis result = AttributeAnalysis{
+            .has_attribute_analysis=true,
             .attribute_matrix=Eigen::MatrixXf::Zero(radargram.trace_matrix.rows(), radargram.trace_matrix.cols()),
             .name="Cosine Phase"
     };

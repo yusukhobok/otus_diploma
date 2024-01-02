@@ -33,10 +33,13 @@ set(PROJECT_SOURCES
         src/domain/attribute_analysis.hpp
         src/domain/depth_section.hpp
         src/domain/layer.hpp
+        src/domain/trajectory.hpp
 
         src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
         src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp
         src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
+
+        src/trajectory_exporters/csv_trajectory_exporter.cpp
 
         src/importers/geoscan_project_importer.cpp
 

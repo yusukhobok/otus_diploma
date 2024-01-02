@@ -13,5 +13,5 @@ DepthSection SimpleDepthSectionCalculator::calculate(const Radargram& radargram)
         }
     }
     depth_vector = depth_vector.array().sqrt() / 2;
-    return DepthSection{.depth_vector = depth_vector};
+    return DepthSection{.has_depth_section=true, .depth_vector = depth_vector};
 }

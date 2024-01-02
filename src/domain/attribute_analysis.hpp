@@ -5,6 +5,7 @@
 
 
 struct AttributeAnalysis {
+    bool has_attribute_analysis;
     Eigen::MatrixXf attribute_matrix;
     std::string name;
 };

@@ -13,8 +13,9 @@ Project::Project(std::shared_ptr<Radargram> radargram) :
         trace_count(radargram->trace_matrix.rows()),
         sample_count(radargram->trace_matrix.cols()),
         radargram(std::move(radargram)),
-        attribute_analysis(std::make_shared<AttributeAnalysis>(Eigen::MatrixXf(trace_count, sample_count), "")),
-        depth_section(std::make_shared<DepthSection>(Eigen::VectorXf(sample_count))) {
+        attribute_analysis(std::make_shared<AttributeAnalysis>(false,Eigen::MatrixXf(trace_count, sample_count), "")),
+        depth_section(std::make_shared<DepthSection>(false, Eigen::VectorXf(sample_count))),
+        trajectory(std::make_shared<Trajectory>(Eigen::VectorXd(trace_count), Eigen::VectorXd(trace_count))) {
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
     }
@@ -23,9 +24,13 @@ Project::Project(std::shared_ptr<Radargram> radargram) :
 
 void Project::print() const {
     std::cout << fmt::format(
+            "traces count = {}\nsamples count = {}\n"
             "delta_distance = {} m\ndelta time = {} ns\nantenna distance = {} m\nvelocity = {} m/ns\n"
             "min = {}\nmax = {}\nmean = {}\nAA name = `{}`\nmin AA = {}\nmax AA = {}\nmean AA = {}\nmax depth = {}\n"
-            "layer count = {}\n",
+            "layer count = {}\n"
+            "x0 = {}\ny0 = {}\nx1 = {}\ny1 = {}\n",
+            trace_count,
+            sample_count,
             radargram->delta_time__ns,
             radargram->delta_time__ns,
             radargram->antenna_distance__m,
@@ -38,7 +43,11 @@ void Project::print() const {
             attribute_analysis->attribute_matrix.maxCoeff(),
             attribute_analysis->attribute_matrix.mean(),
             depth_section->depth_vector.maxCoeff(),
-            layers.size()
+            layers.size(),
+            trajectory->x(0),
+            trajectory->y(0),
+            trajectory->x(trajectory->x.size() - 1),
+            trajectory->y(trajectory->y.size() - 1)
     );
     for (const auto &layer: layers) {
         std::cout << fmt::format(
@@ -173,6 +182,14 @@ void Project::calculate_depth_section(std::shared_ptr<IDepthSectionCalculator> c
 
 void Project::calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> calculator) {
     *attribute_analysis = calculator->calculate(*radargram);
+    if (!validate()) {
+        throw std::runtime_error("Проект в невалидном состоянии.");
+    }
+}
+
+
+void Project::export_trajectory(std::shared_ptr<ITrajectoryExporter> trajectory_exporter, const std::string& filename) {
+    *trajectory = trajectory_exporter->export_trajectory(trace_count, filename);
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
     }

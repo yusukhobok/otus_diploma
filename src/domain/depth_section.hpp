@@ -6,6 +6,7 @@
 
 
 struct DepthSection {
+    bool has_depth_section;
     Eigen::VectorXf depth_vector;
 };
 

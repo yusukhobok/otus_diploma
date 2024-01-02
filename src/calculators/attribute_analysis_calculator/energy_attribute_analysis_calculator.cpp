@@ -9,6 +9,7 @@ const int WINDOWS_LENGTH = 51;
 
 AttributeAnalysis EnergyAttributeAnalysisCalculator::calculate(const Radargram& radargram){
     AttributeAnalysis result = AttributeAnalysis{
+            .has_attribute_analysis=true,
             .attribute_matrix=Eigen::MatrixXf::Zero(radargram.trace_matrix.rows(), radargram.trace_matrix.cols()),
             .name="Energy"
     };

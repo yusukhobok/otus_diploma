@@ -10,6 +10,9 @@
 #include "src/domain/layer.hpp"
 #include "src/calculators/attribute_analysis_calculator/attribute_analysis_calculator.h"
 #include "src/calculators/depth_section_calculator/depth_section_calculator.h"
+#include "src/domain/trajectory.hpp"
+#include "src/snapshot/snapshot.h"
+#include "src/trajectory_exporters/trajectory_exporter.hpp"
 
 class Project {
 private:
@@ -18,7 +21,9 @@ private:
     std::shared_ptr<Radargram> radargram;
     std::shared_ptr<AttributeAnalysis> attribute_analysis;
     std::shared_ptr<DepthSection> depth_section;
+    std::shared_ptr<Trajectory> trajectory;
     std::vector<std::shared_ptr<Layer>> layers;
+
 public:
     Project(std::shared_ptr<Radargram> radargram);
     void print() const;
@@ -29,6 +34,7 @@ public:
     void remove_air_wave();
     void calculate_depth_section(std::shared_ptr<IDepthSectionCalculator> calculator);
     void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> calculator);
+    void export_trajectory(std::shared_ptr<ITrajectoryExporter> trajectory_exporter, const std::string& filename);
     void add_layer(const Layer& layer);
     void clear_layers();
     void export_layers_to_csv(std::string filename);
