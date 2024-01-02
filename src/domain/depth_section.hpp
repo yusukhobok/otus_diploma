@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Core>
 
 
-class DepthSection {
+struct DepthSection {
     Eigen::VectorXf depth_vector;
 };
 

@@ -35,7 +35,7 @@ set(PROJECT_SOURCES
         src/domain/layer.hpp
 
         src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
-        src/calculators/attribute_analysis_calculator/hilbert_attribute_analysis_calculator.cpp
+        src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp
         src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
 
         src/importers/geoscan_project_importer.cpp

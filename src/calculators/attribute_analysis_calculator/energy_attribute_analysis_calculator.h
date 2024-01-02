@@ -7,6 +7,7 @@
 class EnergyAttributeAnalysisCalculator: public IAttributeAnalysisCalculator {
 public:
     AttributeAnalysis calculate(const Radargram& radargram) override;
+    virtual ~EnergyAttributeAnalysisCalculator() = default;
 };
 
 #endif //GPR_READER_ENERGY_ATTRIBUTE_ANALYSIS_CALCULATOR_H

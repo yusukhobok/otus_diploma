@@ -6,6 +6,7 @@
 class SimpleDepthSectionCalculator : public IDepthSectionCalculator {
 public:
     DepthSection calculate(const Radargram& radargram) override;
+    virtual ~SimpleDepthSectionCalculator() = default;
 };
 
 

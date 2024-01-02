@@ -13,20 +13,20 @@
 
 class Project {
 private:
-    int traces_count;
-    int samples_count;
+    int trace_count;
+    int sample_count;
     std::shared_ptr<Radargram> radargram;
     std::shared_ptr<AttributeAnalysis> attribute_analysis;
     std::shared_ptr<DepthSection> depth_section;
     std::vector<std::shared_ptr<Layer>> layers;
 public:
     Project(std::shared_ptr<Radargram> radargram);
-    bool validate();
+    void print() const;
+    bool validate() const;
     void reflect();
-    void remove_trace(float distance__m);
-    void trim(float time__ns);
+    void remove_trace(int trace);
+    void trim(int sample);
     void remove_air_wave();
-    void smooth();
     void calculate_depth_section(std::shared_ptr<IDepthSectionCalculator> calculator);
     void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> calculator);
     void add_layer(const Layer& layer);

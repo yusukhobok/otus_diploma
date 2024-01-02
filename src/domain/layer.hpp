@@ -6,7 +6,7 @@
 
 
 struct Layer {
-    Eigen::VectorXf time_vector;
+    Eigen::VectorXi sample_vector;
     std::string layer_name;
 };
 
