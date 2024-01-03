@@ -1,6 +1,5 @@
 #include <memory>
 #include <iostream>
-#include <cassert>
 #include <ranges>
 #include <algorithm>
 #include <cmath>
@@ -16,7 +15,7 @@ Project::Project(std::shared_ptr<Radargram> radargram) :
         radargram(std::move(radargram)),
         attribute_analysis(std::make_shared<AttributeAnalysis>(false,Eigen::MatrixXf(trace_count, sample_count), "")),
         depth_section(std::make_shared<DepthSection>(false, Eigen::VectorXf(sample_count))),
-        trajectory(std::make_shared<Trajectory>(Eigen::VectorXd(trace_count), Eigen::VectorXd(trace_count))),
+        trajectory(std::make_shared<Trajectory>(false,Eigen::VectorXd(trace_count), Eigen::VectorXd(trace_count))),
         position(0, 0) {
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
@@ -53,8 +52,8 @@ void Project::print() const {
     );
     for (const auto &layer: layers) {
         std::cout << fmt::format(
-                "name = `{}` min = {} max = {} mean = {}\n",
-                layer->layer_name, layer->sample_vector.minCoeff(), layer->sample_vector.maxCoeff(),
+                "min = {} max = {} mean = {}\n",
+                layer->sample_vector.minCoeff(), layer->sample_vector.maxCoeff(),
                 layer->sample_vector.mean()
         );
     }
@@ -105,8 +104,12 @@ bool Project::validate() const {
 
 
 void Project::reflect() {
-    radargram->trace_matrix.colwise().reverse();  // todo - или rowwise
-    attribute_analysis->attribute_matrix.colwise().reverse();  // todo - или rowwise
+    std::cout << radargram->trace_matrix(0, 0) << std::endl;
+    Eigen::MatrixXf new_trace_matrix = radargram->trace_matrix.colwise().reverse();
+    radargram->trace_matrix = new_trace_matrix;
+    std::cout << radargram->trace_matrix(0, 0) << std::endl;
+    Eigen::MatrixXf new_attribute_matrix = attribute_analysis->attribute_matrix.colwise().reverse();
+    attribute_analysis->attribute_matrix = new_attribute_matrix;
     depth_section->depth_vector.reverse();
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
@@ -138,6 +141,7 @@ void Project::remove_trace(int trace) {
     }
 
     --trace_count;
+    position.trace = 0;
 
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
@@ -146,7 +150,7 @@ void Project::remove_trace(int trace) {
 
 
 void Project::trim(int sample) {
-    if (sample_count - sample < 5) {
+    if (sample < 5) {
         return;
     }
 
@@ -161,6 +165,7 @@ void Project::trim(int sample) {
     depth_section->depth_vector = depth_section->depth_vector.head(sample);
 
     sample_count = sample;
+    position.sample = 0;
 
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
@@ -193,6 +198,11 @@ void Project::calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCal
 }
 
 
+void Project::remove_attribute_analysis() {
+    attribute_analysis->has_attribute_analysis = false;
+}
+
+
 void Project::import_trajectory(std::shared_ptr<ITrajectoryImporter> trajectory_importer, const std::string& filename) {
     *trajectory = trajectory_importer->import_trajectory(trace_count, filename);
     if (!validate()) {
@@ -201,10 +211,10 @@ void Project::import_trajectory(std::shared_ptr<ITrajectoryImporter> trajectory_
 }
 
 
-void Project::add_layer(const Layer &layer) {
-    if (layer.sample_vector.rows() != trace_count) {
-        throw std::runtime_error("Некорректное количество точек в слое.");
-    }
+void Project::add_layer(const std::string& layer_name) {
+    Eigen::VectorXi sample_vector = Eigen::VectorXi::Constant(trace_count, position.sample);
+    auto layer = Layer{.sample_vector=sample_vector, .layer_name=layer_name};
+
     std::shared_ptr<Layer> new_layer = std::make_shared<Layer>(layer);
     layers.push_back(new_layer);
     if (!validate()) {
@@ -221,7 +231,7 @@ void Project::clear_layers() {
 }
 
 
-void Project::export_layers_to_csv(std::string filename) {
+void Project::export_layers_to_csv(const std::string& filename) {
     std::ofstream csv_file(filename);
 
     if (!csv_file.is_open()) {

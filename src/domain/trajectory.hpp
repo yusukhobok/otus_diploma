@@ -6,6 +6,7 @@
 
 
 struct Trajectory {
+    bool has_trajectory;
     Eigen::VectorXd x;
     Eigen::VectorXd y;
 };

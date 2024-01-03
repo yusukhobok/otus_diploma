@@ -41,6 +41,7 @@ public slots:
     void calculate_depth_section();
     void calculate_energy();
     void calculate_cosine_phase();
+    void remove_attribute_analysis();
     void import_trajectory_from_csv();
     void add_layer();
     void clear_layers();

@@ -35,10 +35,11 @@ public:
     void remove_air_wave();
     void calculate_depth_section(std::shared_ptr<IDepthSectionCalculator> calculator);
     void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> calculator);
+    void remove_attribute_analysis();
     void import_trajectory(std::shared_ptr<ITrajectoryImporter> trajectory_importer, const std::string& filename);
-    void add_layer(const Layer& layer);
+    void add_layer(const std::string& layer_name);
     void clear_layers();
-    void export_layers_to_csv(std::string filename);
+    void export_layers_to_csv(const std::string& filename);
 
     std::shared_ptr<Radargram> get_radargram();
     std::shared_ptr<AttributeAnalysis> get_attribute_analysis();

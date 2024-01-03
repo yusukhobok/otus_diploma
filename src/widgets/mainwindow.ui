@@ -37,6 +37,19 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCustomPlot" name="trajectory_plot" native="true">
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>CrossCursor</cursorShape>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -71,6 +84,8 @@
     </property>
     <addaction name="action_energy"/>
     <addaction name="action_cosine_phase"/>
+    <addaction name="separator"/>
+    <addaction name="action_remove_attribute_analysis"/>
    </widget>
    <widget class="QMenu" name="menuDepth_Section">
     <property name="title">
@@ -102,7 +117,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_import_from_geoscan">
    <property name="text">
-    <string>Import from GeoScan</string>
+    <string>Import from GeoScan...</string>
    </property>
   </action>
   <action name="action_reflect">
@@ -142,7 +157,7 @@
   </action>
   <action name="action_import_trajectory_from_csv">
    <property name="text">
-    <string>Import Trajectory from CSV</string>
+    <string>Import Trajectory from CSV...</string>
    </property>
   </action>
   <action name="action_export_layers_to_csv">
@@ -162,12 +177,17 @@
   </action>
   <action name="action_export_layers_to_csv_">
    <property name="text">
-    <string>Export Layers to CSV</string>
+    <string>Export Layers to CSV...</string>
    </property>
   </action>
   <action name="action_about">
    <property name="text">
     <string>About...</string>
+   </property>
+  </action>
+  <action name="action_remove_attribute_analysis">
+   <property name="text">
+    <string>Remove Attribute Analysis</string>
    </property>
   </action>
  </widget>

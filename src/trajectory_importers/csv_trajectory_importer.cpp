@@ -39,5 +39,5 @@ Trajectory CsvTrajectoryImporter::import_trajectory(int trace_count, const std::
             ++ j;
         }
     }
-    return Trajectory{.x=x, .y=y};
+    return Trajectory{.has_trajectory=true, .x=x, .y=y};
 }

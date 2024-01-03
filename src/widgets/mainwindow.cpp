@@ -33,6 +33,7 @@ void MainWindow::configure_slots() {
 
     QObject::connect(ui->action_energy, &QAction::triggered, this, &MainWindow::calculate_energy);
     QObject::connect(ui->action_cosine_phase, &QAction::triggered, this, &MainWindow::calculate_cosine_phase);
+    QObject::connect(ui->action_remove_attribute_analysis, &QAction::triggered, this, &MainWindow::remove_attribute_analysis);
 
     QObject::connect(ui->action_import_trajectory_from_csv, &QAction::triggered, this, &MainWindow::import_trajectory_from_csv);
 
@@ -48,8 +49,11 @@ void MainWindow::display_radargram() {
     }
     auto radargram = project->get_radargram();
     auto attribute_analysis = project->get_attribute_analysis();
+    auto trajectory = project->get_trajectory();
     auto position = project->get_position();
 
+    ui->radargram_plot->clearGraphs();
+    ui->radargram_plot->clearItems();
     ui->radargram_plot->axisRect()->setupFullAxesBox(true);
     ui->radargram_plot->xAxis->setLabel("Distance, m");
     ui->radargram_plot->yAxis->setLabel("Time, ns");
@@ -83,6 +87,18 @@ void MainWindow::display_radargram() {
     color_scale->setMarginGroup(QCP::msBottom | QCP::msTop, margin_group);
     ui->radargram_plot->rescaleAxes();
 
+    auto depth_section = project->get_depth_section();
+    if (!depth_section->has_depth_section) {
+        ui->radargram_plot->yAxis2->setVisible(false);
+    } else {
+        ui->radargram_plot->yAxis2->setVisible(true);
+        ui->radargram_plot->yAxis2->setRange(0, depth_section->depth_vector[depth_section->depth_vector.size() - 1]);
+        ui->radargram_plot->yAxis2->setLabel("Depth, m");
+        ui->radargram_plot->yAxis2->setTickLabels(true);
+        ui->radargram_plot->yAxis2->setRangeReversed(true);
+        ui->radargram_plot->addGraph(ui->radargram_plot->yAxis2);
+    }
+
     ui->radargram_plot->addGraph();
     QVector<double> x(1, project->trace_to_distance(position.trace));
     QVector<double> y(1, project->sample_to_time(position.sample));
@@ -90,19 +106,79 @@ void MainWindow::display_radargram() {
     ui->radargram_plot->graph(0)->setScatterStyle(QCPScatterStyle::ssPlus);
     ui->radargram_plot->graph(0)->setPen(QPen(QBrush(Qt::red), 2));
 
-    auto depth_section = project->get_depth_section();
-    if (!depth_section->has_depth_section) {
-        ui->radargram_plot->yAxis2->setVisible(false);
-        return;
+    int layer_index = 1;
+    for (const auto& layer : project->get_layers()) {
+        ui->radargram_plot->addGraph();
+        QVector<double> x_layer(project->get_trace_count());
+        QVector<double> y_layer(project->get_trace_count());
+        for (int trace = 0; trace < project->get_trace_count(); ++trace) {
+            x_layer[trace] = project->trace_to_distance(trace);
+            y_layer[trace] = project->sample_to_time(layer->sample_vector(trace));
+        }
+        ui->radargram_plot->graph(layer_index)->setData(x_layer, y_layer);
+        ui->radargram_plot->graph(layer_index)->setPen(QPen(QBrush(Qt::blue), 2));
+        ++layer_index;
     }
-    ui->radargram_plot->yAxis2->setVisible(true);
-    ui->radargram_plot->yAxis2->setRange(0, depth_section->depth_vector[depth_section->depth_vector.size() - 1]);
-    ui->radargram_plot->yAxis2->setLabel("Depth, m");
-    ui->radargram_plot->yAxis2->setTickLabels(true);
-    ui->radargram_plot->yAxis2->setRangeReversed(true);
-    ui->radargram_plot->addGraph(ui->radargram_plot->yAxis2);
 
     ui->radargram_plot->replot();
+
+
+
+    ui->trace_plot->clearGraphs();
+    ui->trace_plot->clearItems();
+
+    ui->trace_plot->yAxis->setRangeReversed(true);
+    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
+    QVector<double> x_trace(project->get_sample_count()), y_trace(project->get_sample_count());
+    for (int sample = 0; sample < project->get_sample_count(); ++sample) {
+        x_trace[sample] = project->sample_to_time(sample);
+        y_trace[sample] = radargram->trace_matrix(position.trace, sample);
+    }
+    ui->trace_plot->graph(0)->setData(x_trace, y_trace);
+    ui->trace_plot->yAxis->setLabel("Time, ns");
+    ui->trace_plot->xAxis->setLabel("Amplitude");
+    ui->trace_plot->yAxis->setRange(0, project->get_time_max__ns());
+    ui->trace_plot->xAxis->setRange(radargram->trace_matrix.minCoeff(), radargram->trace_matrix.maxCoeff());
+
+    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
+    QVector<double> x_trace_position(1, project->sample_to_time(position.sample));
+    QVector<double> y_trace_position(1, radargram->trace_matrix(position.trace, position.sample));
+    ui->trace_plot->graph(1)->setData(x_trace_position, y_trace_position);
+    ui->trace_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
+    ui->trace_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
+
+    ui->trace_plot->replot();
+
+
+    if (!trajectory->has_trajectory) {
+        ui->trajectory_plot->setVisible(false);
+    } else {
+        ui->trajectory_plot->setVisible(true);
+        ui->trajectory_plot->clearGraphs();
+        ui->trajectory_plot->clearItems();
+        ui->trajectory_plot->addGraph();
+        QVector<double> x_traj(project->get_trace_count()), y_traj(project->get_trace_count());
+        for (int trace = 0; trace < project->get_trace_count(); ++trace) {
+            x_traj[trace] = trajectory->x(trace);
+            y_traj[trace] = trajectory->y(trace);
+            std::cout << x_traj[trace] << " " << y_traj[trace] << std::endl;
+        }
+        ui->trajectory_plot->graph(0)->setData(x_traj, y_traj);
+        ui->trajectory_plot->xAxis->setLabel("X");
+        ui->trajectory_plot->yAxis->setLabel("Y");
+        ui->trajectory_plot->xAxis->setRange(trajectory->x.minCoeff(), trajectory->x.maxCoeff());
+        ui->trajectory_plot->yAxis->setRange(trajectory->y.minCoeff(), trajectory->y.maxCoeff());
+
+        ui->trajectory_plot->addGraph();
+        QVector<double> x_traj_position(1, trajectory->x(position.trace));
+        QVector<double> y_traj_position(1, trajectory->y(position.trace));
+        ui->trajectory_plot->graph(1)->setData(x_traj_position, y_traj_position);
+        ui->trajectory_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
+        ui->trajectory_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
+
+        ui->trajectory_plot->replot();
+    }
+
 }
 
 
@@ -192,6 +268,15 @@ void MainWindow::calculate_cosine_phase() {
 }
 
 
+void MainWindow::remove_attribute_analysis() {
+    if (project == nullptr) {
+        return;
+    }
+    project->remove_attribute_analysis();
+    display_radargram();
+}
+
+
 void MainWindow::import_trajectory_from_csv() {
     if (project == nullptr) {
         return;
@@ -211,6 +296,12 @@ void MainWindow::add_layer() {
     if (project == nullptr) {
         return;
     }
+//    QString layer_name = QInputDialog::getText(this, "Layer Name", "");
+//    if (layer_name.isEmpty()) {
+//        return;
+//    }
+    QString layer_name = "layer name";  // todo
+    project->add_layer(layer_name.toStdString());
     display_radargram();
 }
 
