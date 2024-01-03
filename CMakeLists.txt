@@ -34,6 +34,7 @@ set(PROJECT_SOURCES
         src/domain/depth_section.hpp
         src/domain/layer.hpp
         src/domain/trajectory.hpp
+        src/domain/position.hpp
 
         src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
         src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp

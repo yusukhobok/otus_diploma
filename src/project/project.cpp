@@ -3,6 +3,7 @@
 #include <cassert>
 #include <ranges>
 #include <algorithm>
+#include <cmath>
 #include <fmt/format.h>
 #include <fstream>
 
@@ -15,7 +16,8 @@ Project::Project(std::shared_ptr<Radargram> radargram) :
         radargram(std::move(radargram)),
         attribute_analysis(std::make_shared<AttributeAnalysis>(false,Eigen::MatrixXf(trace_count, sample_count), "")),
         depth_section(std::make_shared<DepthSection>(false, Eigen::VectorXf(sample_count))),
-        trajectory(std::make_shared<Trajectory>(Eigen::VectorXd(trace_count), Eigen::VectorXd(trace_count))) {
+        trajectory(std::make_shared<Trajectory>(Eigen::VectorXd(trace_count), Eigen::VectorXd(trace_count))),
+        position(0, 0) {
     if (!validate()) {
         throw std::runtime_error("Проект в невалидном состоянии.");
     }
@@ -95,6 +97,9 @@ bool Project::validate() const {
     })) {
         return false;
     }
+    if (position.trace < 0 || position.trace >= trace_count || position.sample < 0 || position.sample >= sample_count) {
+        return false;
+    }
     return true;
 }
 
@@ -141,7 +146,7 @@ void Project::remove_trace(int trace) {
 
 
 void Project::trim(int sample) {
-    if (sample_count - sample < 0) {
+    if (sample_count - sample < 5) {
         return;
     }
 
@@ -236,3 +241,81 @@ void Project::export_layers_to_csv(std::string filename) {
     csv_file.close();
 }
 
+
+std::shared_ptr<Radargram> Project::get_radargram() {
+    return radargram;
+}
+
+
+std::shared_ptr<AttributeAnalysis> Project::get_attribute_analysis() {
+    return attribute_analysis;
+}
+
+
+std::shared_ptr<DepthSection> Project::get_depth_section() {
+    return depth_section;
+}
+
+
+std::shared_ptr<Trajectory> Project::get_trajectory() {
+    return trajectory;
+}
+
+
+std::vector<std::shared_ptr<Layer>> Project::get_layers() {
+    return layers;
+}
+
+
+int Project::get_trace_count() const {
+    return trace_count;
+}
+
+
+int Project::get_sample_count() const {
+    return sample_count;
+}
+
+
+double Project::trace_to_distance(int trace) const {
+    return trace * radargram->delta_distance__m;
+}
+
+
+int Project::distance_to_trace(double distance__m) const {
+    return round(distance__m / radargram->delta_distance__m);
+}
+
+
+double Project::sample_to_time(int sample) const {
+    return sample * radargram->delta_time__ns;
+}
+
+
+int Project::time_to_sample(double time__ns) const {
+    return round(time__ns / radargram->delta_time__ns);
+}
+
+
+Position Project::get_position() const {
+    return position;
+}
+
+
+void Project::set_position(int trace, int sample) {
+    if (trace < 0 || trace >= trace_count || sample < 0 || sample >= sample_count) {
+        return;
+    }
+    position.trace = trace;
+    position.sample = sample;
+}
+
+
+double Project::get_distance_max__m() const {
+    return trace_to_distance(trace_count - 1);
+}
+
+
+double Project::get_time_max__ns() const {
+    return sample_to_time(sample_count - 1);
+}

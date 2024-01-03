@@ -25,13 +25,7 @@ struct Header {
     unsigned int time_base__ns;
     float eps;
     int delta_x__mm;
-    union {
-        struct {
-            int delta_y__mm;
-            unsigned int profile_count;
-        };
-        int64_t start_position;
-    };
+    int64_t start_position;
     int64_t start_x;
     int64_t start_y;
     int64_t start_z;

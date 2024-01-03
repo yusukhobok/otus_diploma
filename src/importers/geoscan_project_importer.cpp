@@ -59,7 +59,7 @@ std::shared_ptr<Project> GeoScanProjectImporter::import(const std::string& filen
 
     std::shared_ptr<Radargram> radargram = std::make_shared<Radargram>(
         *trace_matrix,
-        header.delta_x__mm * 1000,
+        static_cast<double>(header.delta_x__mm) / 1000,
         static_cast<double>(header.time_base__ns) / header.sample_count,
         "ОКО-2",
         "АБ-1000",

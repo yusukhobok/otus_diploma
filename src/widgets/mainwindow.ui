@@ -11,32 +11,35 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Radargram Editor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>40</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>PushButton</string>
-    </property>
-   </widget>
-   <widget class="QCustomPlot" name="customPlot" native="true">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>130</y>
-      <width>561</width>
-      <height>391</height>
-     </rect>
-    </property>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCustomPlot" name="radargram_plot" native="true">
+        <property name="cursor">
+         <cursorShape>CrossCursor</cursorShape>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCustomPlot" name="trace_plot" native="true">
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>CrossCursor</cursorShape>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -47,8 +50,126 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_import_from_geoscan"/>
+   </widget>
+   <widget class="QMenu" name="menuRadargram">
+    <property name="title">
+     <string>Radargram</string>
+    </property>
+    <addaction name="action_reflect"/>
+    <addaction name="action_remove_trace"/>
+    <addaction name="action_trim"/>
+    <addaction name="action_remove_air_wave"/>
+   </widget>
+   <widget class="QMenu" name="menuAttribute_Analysis">
+    <property name="title">
+     <string>Attribute Analysis</string>
+    </property>
+    <addaction name="action_energy"/>
+    <addaction name="action_cosine_phase"/>
+   </widget>
+   <widget class="QMenu" name="menuDepth_Section">
+    <property name="title">
+     <string>Depth Section</string>
+    </property>
+    <addaction name="action_calculate_depth_section"/>
+   </widget>
+   <widget class="QMenu" name="menuTrajectory">
+    <property name="title">
+     <string>Trajectory</string>
+    </property>
+    <addaction name="action_import_trajectory_from_csv"/>
+   </widget>
+   <widget class="QMenu" name="menuLayers">
+    <property name="title">
+     <string>Layers</string>
+    </property>
+    <addaction name="action_add_layer"/>
+    <addaction name="action_clear_layers"/>
+    <addaction name="action_export_layers_to_csv_"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menuRadargram"/>
+   <addaction name="menuDepth_Section"/>
+   <addaction name="menuAttribute_Analysis"/>
+   <addaction name="menuTrajectory"/>
+   <addaction name="menuLayers"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_import_from_geoscan">
+   <property name="text">
+    <string>Import from GeoScan</string>
+   </property>
+  </action>
+  <action name="action_reflect">
+   <property name="text">
+    <string>Reflect</string>
+   </property>
+  </action>
+  <action name="action_remove_trace">
+   <property name="text">
+    <string>Remove Trace</string>
+   </property>
+  </action>
+  <action name="action_trim">
+   <property name="text">
+    <string>Trim</string>
+   </property>
+  </action>
+  <action name="action_remove_air_wave">
+   <property name="text">
+    <string>Remove Air Wave</string>
+   </property>
+  </action>
+  <action name="action_calculate_depth_section">
+   <property name="text">
+    <string>Simple Calculation</string>
+   </property>
+  </action>
+  <action name="action_energy">
+   <property name="text">
+    <string>Energy</string>
+   </property>
+  </action>
+  <action name="action_cosine_phase">
+   <property name="text">
+    <string>Cosine Phase</string>
+   </property>
+  </action>
+  <action name="action_import_trajectory_from_csv">
+   <property name="text">
+    <string>Import Trajectory from CSV</string>
+   </property>
+  </action>
+  <action name="action_export_layers_to_csv">
+   <property name="text">
+    <string>Export Layers to CSV</string>
+   </property>
+  </action>
+  <action name="action_add_layer">
+   <property name="text">
+    <string>Add Layer</string>
+   </property>
+  </action>
+  <action name="action_clear_layers">
+   <property name="text">
+    <string>Clear Layers</string>
+   </property>
+  </action>
+  <action name="action_export_layers_to_csv_">
+   <property name="text">
+    <string>Export Layers to CSV</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
