@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
                                           cosine_phase_attribute_analysis_calculator(
                                                   std::make_shared<CosinePhaseAttributeAnalysisCalculator>()) {
     ui->setupUi(this);
+    configure_plot_widgets();
     QObject::connect(ui->radargram_plot, &QCustomPlot::mousePress, this, &MainWindow::radargram_mouse_press);
     configure_slots();
     import_project_from_geoscan();  // todo - убрать
@@ -23,23 +24,97 @@ MainWindow::~MainWindow() {
 
 void MainWindow::configure_slots() {
     QObject::connect(ui->action_import_from_geoscan, &QAction::triggered, this, &MainWindow::import_project_from_geoscan);
-
     QObject::connect(ui->action_reflect, &QAction::triggered, this, &MainWindow::reflect);
     QObject::connect(ui->action_remove_trace, &QAction::triggered, this, &MainWindow::remove_trace);
     QObject::connect(ui->action_trim, &QAction::triggered, this, &MainWindow::trim);
     QObject::connect(ui->action_remove_air_wave, &QAction::triggered, this, &MainWindow::remove_air_wave);
-
     QObject::connect(ui->action_calculate_depth_section, &QAction::triggered, this, &MainWindow::calculate_depth_section);
-
     QObject::connect(ui->action_energy, &QAction::triggered, this, &MainWindow::calculate_energy);
     QObject::connect(ui->action_cosine_phase, &QAction::triggered, this, &MainWindow::calculate_cosine_phase);
     QObject::connect(ui->action_remove_attribute_analysis, &QAction::triggered, this, &MainWindow::remove_attribute_analysis);
-
     QObject::connect(ui->action_import_trajectory_from_csv, &QAction::triggered, this, &MainWindow::import_trajectory_from_csv);
-
     QObject::connect(ui->action_add_layer, &QAction::triggered, this, &MainWindow::add_layer);
     QObject::connect(ui->action_clear_layers, &QAction::triggered, this, &MainWindow::clear_layers);
     QObject::connect(ui->action_export_layers_to_csv_, &QAction::triggered, this, &MainWindow::export_layers_to_csv);
+}
+
+
+void MainWindow::configure_plot_widgets() {
+    ui->radargram_plot->axisRect()->setupFullAxesBox(true);
+    ui->radargram_plot->xAxis->setLabel("Distance, m");
+    ui->radargram_plot->yAxis->setLabel("Time, ns");
+    ui->radargram_plot->yAxis->setRangeReversed(true);
+    ui->trace_plot->yAxis->setLabel("Time, ns");
+    ui->trace_plot->xAxis->setLabel("Amplitude");
+    ui->trajectory_plot->xAxis->setLabel("Longitude, deg");
+    ui->trajectory_plot->yAxis->setLabel("Latitude, deg");
+}
+
+
+void MainWindow::display_trace() {
+    auto radargram = project->get_radargram();
+    auto position = project->get_position();
+
+    ui->trace_plot->clearPlottables();
+    ui->trace_plot->yAxis->setRangeReversed(true);
+    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
+    QVector<double> x_trace(project->get_sample_count()), y_trace(project->get_sample_count());
+    for (int sample = 0; sample < project->get_sample_count(); ++sample) {
+        x_trace[sample] = project->sample_to_time(sample);
+        y_trace[sample] = radargram->trace_matrix(position.trace, sample);
+    }
+    ui->trace_plot->graph(0)->setData(x_trace, y_trace);
+    ui->trace_plot->yAxis->setRange(0, project->get_time_max__ns());
+    ui->trace_plot->xAxis->setRange(radargram->trace_matrix.minCoeff(), radargram->trace_matrix.maxCoeff());
+
+    display_position_on_trace();
+    ui->trace_plot->replot();
+}
+
+void MainWindow::display_position_on_trace() {
+    auto radargram = project->get_radargram();
+    auto position = project->get_position();
+    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
+    QVector<double> x_trace_position(1, project->sample_to_time(position.sample));
+    QVector<double> y_trace_position(1, radargram->trace_matrix(position.trace, position.sample));
+    ui->trace_plot->graph(1)->setData(x_trace_position, y_trace_position);
+    ui->trace_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
+    ui->trace_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
+}
+
+
+void MainWindow::display_trajectory() {
+    auto trajectory = project->get_trajectory();
+    if (!trajectory->has_trajectory) {
+        ui->trajectory_plot->setVisible(false);
+        return;
+    }
+    ui->trajectory_plot->setVisible(true);
+    ui->trajectory_plot->clearPlottables();
+    ui->trajectory_plot->addGraph();
+    QVector<double> x(project->get_trace_count()), y(project->get_trace_count());
+    for (int trace = 0; trace < project->get_trace_count(); ++trace) {
+        x[trace] = trajectory->x(trace);
+        y[trace] = trajectory->y(trace);
+    }
+    ui->trajectory_plot->graph(0)->setData(x, y);
+    ui->trajectory_plot->xAxis->setRange(trajectory->x.minCoeff(), trajectory->x.maxCoeff());
+    ui->trajectory_plot->yAxis->setRange(trajectory->y.minCoeff(), trajectory->y.maxCoeff());
+
+    display_position_on_trajectory();
+    ui->trajectory_plot->replot();
+}
+
+
+void MainWindow::display_position_on_trajectory() {
+    auto trajectory = project->get_trajectory();
+    auto position = project->get_position();
+    ui->trajectory_plot->addGraph();
+    QVector<double> x_traj_position(1, trajectory->x(position.trace));
+    QVector<double> y_traj_position(1, trajectory->y(position.trace));
+    ui->trajectory_plot->graph(1)->setData(x_traj_position, y_traj_position);
+    ui->trajectory_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
+    ui->trajectory_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
 }
 
 
@@ -49,15 +124,8 @@ void MainWindow::display_radargram() {
     }
     auto radargram = project->get_radargram();
     auto attribute_analysis = project->get_attribute_analysis();
-    auto trajectory = project->get_trajectory();
-    auto position = project->get_position();
 
-    ui->radargram_plot->clearGraphs();
-    ui->radargram_plot->clearItems();
-    ui->radargram_plot->axisRect()->setupFullAxesBox(true);
-    ui->radargram_plot->xAxis->setLabel("Distance, m");
-    ui->radargram_plot->yAxis->setLabel("Time, ns");
-    ui->radargram_plot->yAxis->setRangeReversed(true);
+    ui->radargram_plot->clearPlottables();
     ui->radargram_plot->xAxis->setRange(0, project->get_distance_max__m());
     ui->radargram_plot->yAxis->setRange(0, project->get_time_max__ns());
 
@@ -86,7 +154,27 @@ void MainWindow::display_radargram() {
     ui->radargram_plot->axisRect()->setMarginGroup(QCP::msBottom | QCP::msTop, margin_group);
     color_scale->setMarginGroup(QCP::msBottom | QCP::msTop, margin_group);
     ui->radargram_plot->rescaleAxes();
+    ui->radargram_plot->replot();
 
+    display_position_on_radargram();
+    display_depth_section();
+    display_layers();
+}
+
+
+void MainWindow::display_position_on_radargram() {
+    auto position = project->get_position();
+    ui->radargram_plot->addGraph();
+    QVector<double> x(1, project->trace_to_distance(position.trace));
+    QVector<double> y(1, project->sample_to_time(position.sample));
+    ui->radargram_plot->graph(0)->setData(x, y);
+    ui->radargram_plot->graph(0)->setScatterStyle(QCPScatterStyle::ssPlus);
+    ui->radargram_plot->graph(0)->setPen(QPen(QBrush(Qt::red), 2));
+    ui->radargram_plot->replot();
+}
+
+
+void MainWindow::display_depth_section() {
     auto depth_section = project->get_depth_section();
     if (!depth_section->has_depth_section) {
         ui->radargram_plot->yAxis2->setVisible(false);
@@ -98,14 +186,11 @@ void MainWindow::display_radargram() {
         ui->radargram_plot->yAxis2->setRangeReversed(true);
         ui->radargram_plot->addGraph(ui->radargram_plot->yAxis2);
     }
+    ui->radargram_plot->replot();
+}
 
-    ui->radargram_plot->addGraph();
-    QVector<double> x(1, project->trace_to_distance(position.trace));
-    QVector<double> y(1, project->sample_to_time(position.sample));
-    ui->radargram_plot->graph(0)->setData(x, y);
-    ui->radargram_plot->graph(0)->setScatterStyle(QCPScatterStyle::ssPlus);
-    ui->radargram_plot->graph(0)->setPen(QPen(QBrush(Qt::red), 2));
 
+void MainWindow::display_layers() {
     int layer_index = 1;
     for (const auto& layer : project->get_layers()) {
         ui->radargram_plot->addGraph();
@@ -119,67 +204,23 @@ void MainWindow::display_radargram() {
         ui->radargram_plot->graph(layer_index)->setPen(QPen(QBrush(Qt::blue), 2));
         ++layer_index;
     }
-
     ui->radargram_plot->replot();
-
-
-
-    ui->trace_plot->clearGraphs();
-    ui->trace_plot->clearItems();
-
-    ui->trace_plot->yAxis->setRangeReversed(true);
-    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
-    QVector<double> x_trace(project->get_sample_count()), y_trace(project->get_sample_count());
-    for (int sample = 0; sample < project->get_sample_count(); ++sample) {
-        x_trace[sample] = project->sample_to_time(sample);
-        y_trace[sample] = radargram->trace_matrix(position.trace, sample);
-    }
-    ui->trace_plot->graph(0)->setData(x_trace, y_trace);
-    ui->trace_plot->yAxis->setLabel("Time, ns");
-    ui->trace_plot->xAxis->setLabel("Amplitude");
-    ui->trace_plot->yAxis->setRange(0, project->get_time_max__ns());
-    ui->trace_plot->xAxis->setRange(radargram->trace_matrix.minCoeff(), radargram->trace_matrix.maxCoeff());
-
-    ui->trace_plot->addGraph(ui->trace_plot->yAxis, ui->trace_plot->xAxis);
-    QVector<double> x_trace_position(1, project->sample_to_time(position.sample));
-    QVector<double> y_trace_position(1, radargram->trace_matrix(position.trace, position.sample));
-    ui->trace_plot->graph(1)->setData(x_trace_position, y_trace_position);
-    ui->trace_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
-    ui->trace_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
-
-    ui->trace_plot->replot();
-
-
-    if (!trajectory->has_trajectory) {
-        ui->trajectory_plot->setVisible(false);
-    } else {
-        ui->trajectory_plot->setVisible(true);
-        ui->trajectory_plot->clearGraphs();
-        ui->trajectory_plot->clearItems();
-        ui->trajectory_plot->addGraph();
-        QVector<double> x_traj(project->get_trace_count()), y_traj(project->get_trace_count());
-        for (int trace = 0; trace < project->get_trace_count(); ++trace) {
-            x_traj[trace] = trajectory->x(trace);
-            y_traj[trace] = trajectory->y(trace);
-            std::cout << x_traj[trace] << " " << y_traj[trace] << std::endl;
-        }
-        ui->trajectory_plot->graph(0)->setData(x_traj, y_traj);
-        ui->trajectory_plot->xAxis->setLabel("X");
-        ui->trajectory_plot->yAxis->setLabel("Y");
-        ui->trajectory_plot->xAxis->setRange(trajectory->x.minCoeff(), trajectory->x.maxCoeff());
-        ui->trajectory_plot->yAxis->setRange(trajectory->y.minCoeff(), trajectory->y.maxCoeff());
-
-        ui->trajectory_plot->addGraph();
-        QVector<double> x_traj_position(1, trajectory->x(position.trace));
-        QVector<double> y_traj_position(1, trajectory->y(position.trace));
-        ui->trajectory_plot->graph(1)->setData(x_traj_position, y_traj_position);
-        ui->trajectory_plot->graph(1)->setScatterStyle(QCPScatterStyle::ssPlus);
-        ui->trajectory_plot->graph(1)->setPen(QPen(QBrush(Qt::red), 2));
-
-        ui->trajectory_plot->replot();
-    }
-
 }
+
+
+void MainWindow::display_all() {
+    display_radargram();
+    display_trace();
+    display_trajectory();
+}
+
+
+void MainWindow::display_position() {
+    display_position_on_radargram();
+    display_position_on_trace();
+    display_position_on_trajectory();
+}
+
 
 
 void MainWindow::radargram_mouse_press(QMouseEvent* event) {
@@ -189,7 +230,7 @@ void MainWindow::radargram_mouse_press(QMouseEvent* event) {
     int trace = project->distance_to_trace(distance__m);
     int sample = project->time_to_sample(time__ns);
     project->set_position(trace, sample);
-    display_radargram();
+    display_all();
 }
 
 
@@ -201,7 +242,7 @@ void MainWindow::import_project_from_geoscan() {
         return;
     }
     project = geoscan_project_importer->import(filename.toStdString());
-    display_radargram();
+    display_all();
 }
 
 
@@ -210,7 +251,7 @@ void MainWindow::reflect() {
         return;
     }
     project->reflect();
-    display_radargram();
+    display_all();
 }
 
 
@@ -219,7 +260,7 @@ void MainWindow::remove_trace() {
         return;
     }
     project->remove_trace(project->get_position().trace);
-    display_radargram();
+    display_all();
 }
 
 
@@ -228,7 +269,7 @@ void MainWindow::trim() {
         return;
     }
     project->trim(project->get_position().sample);
-    display_radargram();
+    display_all();
 }
 
 
@@ -237,7 +278,7 @@ void MainWindow::remove_air_wave() {
         return;
     }
     project->remove_air_wave();
-    display_radargram();
+    display_all();
 }
 
 
@@ -246,7 +287,7 @@ void MainWindow::calculate_depth_section() {
         return;
     }
     project->calculate_depth_section(simple_depth_section_calculator);
-    display_radargram();
+    display_all();
 }
 
 
@@ -255,7 +296,7 @@ void MainWindow::calculate_energy() {
         return;
     }
     project->calculate_attribute_analysis(energy_attribute_analysis_calculator);
-    display_radargram();
+    display_all();
 }
 
 
@@ -264,7 +305,7 @@ void MainWindow::calculate_cosine_phase() {
         return;
     }
     project->calculate_attribute_analysis(cosine_phase_attribute_analysis_calculator);
-    display_radargram();
+    display_all();
 }
 
 
@@ -273,7 +314,7 @@ void MainWindow::remove_attribute_analysis() {
         return;
     }
     project->remove_attribute_analysis();
-    display_radargram();
+    display_all();
 }
 
 
@@ -288,7 +329,7 @@ void MainWindow::import_trajectory_from_csv() {
         return;
     }
     project->import_trajectory(csv_trajectory_importer, filename.toStdString());
-    display_radargram();
+    display_all();
 }
 
 
@@ -302,7 +343,7 @@ void MainWindow::add_layer() {
 //    }
     QString layer_name = "layer name";  // todo
     project->add_layer(layer_name.toStdString());
-    display_radargram();
+    display_all();
 }
 
 
@@ -311,7 +352,7 @@ void MainWindow::clear_layers() {
         return;
     }
     project->clear_layers();
-    display_radargram();
+    display_all();
 }
 
 
@@ -324,6 +365,5 @@ void MainWindow::export_layers_to_csv() {
         return;
     }
     project->export_layers_to_csv(filename.toStdString());
-    display_radargram();
 }
 

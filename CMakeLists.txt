@@ -23,11 +23,11 @@ include_directories(${Boost_INCLUDE_DIR})
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/widgets/mainwindow.cpp
-        src/widgets/mainwindow.h
-        src/widgets/mainwindow.ui
-        src/widgets/qcustomplot.cpp
-        src/widgets/qcustomplot.h
+        src/ui/mainwindow.cpp
+        src/ui/mainwindow.h
+        src/ui/mainwindow.ui
+        src/ui/qcustomplot.cpp
+        src/ui/qcustomplot.h
 
         src/domain/radargram.hpp
         src/domain/attribute_analysis.hpp
@@ -61,7 +61,6 @@ else ()
 endif ()
 
 target_link_libraries(gpr_reader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${Boost_LIBRARIES} Threads::Threads Eigen3::Eigen Qt6::PrintSupport fmt::fmt)
-#target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic -Werror)
 target_compile_options(gpr_reader PRIVATE -Wall -Wextra -pedantic)
 
 

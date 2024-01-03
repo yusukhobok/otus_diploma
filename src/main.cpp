@@ -2,7 +2,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-#include "src/widgets/mainwindow.h"
+#include "src/ui/mainwindow.h"
 #include "src/importers/geoscan_project_importer.h"
 #include "src/calculators/depth_section_calculator/simple_depth_section_calculator.h"
 #include "src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.h"

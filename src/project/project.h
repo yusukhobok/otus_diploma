@@ -26,9 +26,9 @@ private:
     Position position;
 
 public:
-    Project(std::shared_ptr<Radargram> radargram);
+    explicit Project(std::shared_ptr<Radargram> radargram);
     void print() const;
-    bool validate() const;
+    [[nodiscard]] bool validate() const;
     void reflect();
     void remove_trace(int trace);
     void trim(int sample);
@@ -41,21 +41,21 @@ public:
     void clear_layers();
     void export_layers_to_csv(const std::string& filename);
 
-    std::shared_ptr<Radargram> get_radargram();
-    std::shared_ptr<AttributeAnalysis> get_attribute_analysis();
-    std::shared_ptr<DepthSection> get_depth_section();
-    std::shared_ptr<Trajectory> get_trajectory();
-    std::vector<std::shared_ptr<Layer>> get_layers();
-    int get_trace_count() const;
-    int get_sample_count() const;
-    double trace_to_distance(int trace) const;
-    int distance_to_trace(double distance__m) const;
-    double sample_to_time(int sample) const;
-    int time_to_sample(double time__ns) const;
-    Position get_position() const;
+    [[nodiscard]] std::shared_ptr<Radargram> get_radargram();
+    [[nodiscard]] std::shared_ptr<AttributeAnalysis> get_attribute_analysis();
+    [[nodiscard]] std::shared_ptr<DepthSection> get_depth_section();
+    [[nodiscard]] std::shared_ptr<Trajectory> get_trajectory();
+    [[nodiscard]] std::vector<std::shared_ptr<Layer>> get_layers();
+    [[nodiscard]] int get_trace_count() const;
+    [[nodiscard]] int get_sample_count() const;
+    [[nodiscard]] double trace_to_distance(int trace) const;
+    [[nodiscard]] int distance_to_trace(double distance__m) const;
+    [[nodiscard]] double sample_to_time(int sample) const;
+    [[nodiscard]] int time_to_sample(double time__ns) const;
+    [[nodiscard]] Position get_position() const;
     void set_position(int trace, int sample);
-    double get_distance_max__m() const;
-    double get_time_max__ns() const;
+    [[nodiscard]] double get_distance_max__m() const;
+    [[nodiscard]] double get_time_max__ns() const;
 };
 
 

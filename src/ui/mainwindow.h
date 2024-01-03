@@ -9,6 +9,7 @@
 #include "src/calculators/depth_section_calculator/simple_depth_section_calculator.h"
 #include "src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.h"
 #include "src/calculators/attribute_analysis_calculator/cosine_phase_attribute_analysis_calculator.h"
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,7 +31,20 @@ private:
     std::shared_ptr<SimpleDepthSectionCalculator> simple_depth_section_calculator;
     std::shared_ptr<EnergyAttributeAnalysisCalculator> energy_attribute_analysis_calculator;
     std::shared_ptr<CosinePhaseAttributeAnalysisCalculator> cosine_phase_attribute_analysis_calculator;
+
     void configure_slots();
+    void configure_plot_widgets();
+
+    void display_radargram();
+    void display_depth_section();
+    void display_layers();
+    void display_position_on_radargram();
+    void display_trace();
+    void display_position_on_trace();
+    void display_trajectory();
+    void display_position_on_trajectory();
+    void display_all();
+    void display_position();
 
 public slots:
     void import_project_from_geoscan();
@@ -46,8 +60,6 @@ public slots:
     void add_layer();
     void clear_layers();
     void export_layers_to_csv();
-
-    void display_radargram();
     void radargram_mouse_press(QMouseEvent* event);
 };
 
