@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "src/ui/workers/attribute_analysis_worker.hpp"
+#include "modal_progress_dialog.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), project(nullptr),
                                           geoscan_project_importer(std::make_shared<GeoScanProjectImporter>()),
@@ -291,12 +293,29 @@ void MainWindow::calculate_depth_section() {
 }
 
 
+void MainWindow::calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> attribute_analysis_calculator) {
+    AttributeAnalysisWorker worker(project, attribute_analysis_calculator);
+    QThreadPool thread_pool;
+    thread_pool.setMaxThreadCount(1);
+
+    ModalProgressDialog modal_dialog(this);
+    QObject::connect(&worker, &AttributeAnalysisWorker::work_finished, &modal_dialog, &QDialog::accept);
+    QObject::connect(&worker, &AttributeAnalysisWorker::work_cancelled, &modal_dialog, &QDialog::reject);
+    QObject::connect(&modal_dialog, &QDialog::rejected, &worker, &AttributeAnalysisWorker::stop_work);
+    QObject::connect(&worker, &AttributeAnalysisWorker::work_finished, this, &MainWindow::display_all);
+
+    AttributeAnalysisWorkerRunnable *runnable = new AttributeAnalysisWorkerRunnable(&worker);
+    thread_pool.start(runnable);
+    modal_dialog.exec();
+    thread_pool.waitForDone();
+}
+
+
 void MainWindow::calculate_energy() {
     if (project == nullptr) {
         return;
     }
-    project->calculate_attribute_analysis(energy_attribute_analysis_calculator);
-    display_all();
+    calculate_attribute_analysis(energy_attribute_analysis_calculator);
 }
 
 
@@ -304,8 +323,7 @@ void MainWindow::calculate_cosine_phase() {
     if (project == nullptr) {
         return;
     }
-    project->calculate_attribute_analysis(cosine_phase_attribute_analysis_calculator);
-    display_all();
+    calculate_attribute_analysis(cosine_phase_attribute_analysis_calculator);
 }
 
 

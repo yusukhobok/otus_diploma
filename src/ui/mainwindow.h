@@ -45,6 +45,7 @@ private:
     void display_position_on_trajectory();
     void display_all();
     void display_position();
+    void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> attribute_analysis_calculator);
 
 public slots:
     void import_project_from_geoscan();

@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
         src/ui/mainwindow.ui
         src/ui/qcustomplot.cpp
         src/ui/qcustomplot.h
+        src/ui/modal_progress_dialog.hpp
+        src/ui/workers/attribute_analysis_worker.hpp
 
         src/domain/radargram.hpp
         src/domain/attribute_analysis.hpp
