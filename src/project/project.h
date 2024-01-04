@@ -56,6 +56,7 @@ public:
     void set_position(int trace, int sample);
     [[nodiscard]] double get_distance_max__m() const;
     [[nodiscard]] double get_time_max__ns() const;
+    [[nodiscard]] std::string get_info() const;
 };
 
 

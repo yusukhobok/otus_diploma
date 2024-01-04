@@ -32,7 +32,7 @@ void Project::print() const {
             "x0 = {}\ny0 = {}\nx1 = {}\ny1 = {}\n",
             trace_count,
             sample_count,
-            radargram->delta_time__ns,
+            radargram->delta_distance__m,
             radargram->delta_time__ns,
             radargram->antenna_distance__m,
             radargram->velocity__m_per_ns,
@@ -239,6 +239,7 @@ void Project::export_layers_to_csv(const std::string& filename) {
     }
 
     for (const auto& layer : layers) {
+        csv_file << layer->layer_name << ",";
         for (int i = 0; i < layer->sample_vector.size(); ++i) {
             csv_file << layer->sample_vector[i];
             if (i < layer->sample_vector.size() - 1) {
@@ -328,4 +329,23 @@ double Project::get_distance_max__m() const {
 
 double Project::get_time_max__ns() const {
     return sample_to_time(sample_count - 1);
+}
+
+
+std::string Project::get_info() const {
+    return fmt::format(
+        "traces count = {}\nsamples count = {}\n"
+        "delta distance = {:.3f} m\ndelta time = {:.3f} ns\nantenna distance = {:.3f} m\nvelocity = {:.3f} m/ns\n"
+        "antenna name = `{}`\ngpr unit = `{}`\nfrequency = {:.1f} MHz\nlayer count = {}",
+        trace_count,
+        sample_count,
+        radargram->delta_distance__m,
+        radargram->delta_time__ns,
+        radargram->antenna_distance__m,
+        radargram->velocity__m_per_ns,
+        radargram->antenna_name,
+        radargram->gpr_unit,
+        radargram->frequency__MHz,
+        layers.size()
+    );
 }

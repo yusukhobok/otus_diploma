@@ -19,7 +19,7 @@ std::vector<std::string> CsvTrajectoryImporter::read_csv(const std::string& file
 
 Trajectory CsvTrajectoryImporter::import_trajectory(int trace_count, const std::string& filename) {
     std::vector<std::string> lines = read_csv(filename);
-    if (static_cast<int>(lines.size()) != trace_count) {
+    if (static_cast<int>(lines.size()) < trace_count) {
         throw std::runtime_error("Некорректное количество строк в файле.");
     }
 

@@ -77,6 +77,8 @@
     <addaction name="action_remove_trace"/>
     <addaction name="action_trim"/>
     <addaction name="action_remove_air_wave"/>
+    <addaction name="separator"/>
+    <addaction name="action_show_info"/>
    </widget>
    <widget class="QMenu" name="menuAttribute_Analysis">
     <property name="title">
@@ -188,6 +190,11 @@
   <action name="action_remove_attribute_analysis">
    <property name="text">
     <string>Remove Attribute Analysis</string>
+   </property>
+  </action>
+  <action name="action_show_info">
+   <property name="text">
+    <string>Show Info...</string>
    </property>
   </action>
  </widget>

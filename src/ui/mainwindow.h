@@ -44,7 +44,6 @@ private:
     void display_trajectory();
     void display_position_on_trajectory();
     void display_all();
-    void display_position();
     void calculate_attribute_analysis(std::shared_ptr<IAttributeAnalysisCalculator> attribute_analysis_calculator);
 
 public slots:
@@ -61,6 +60,7 @@ public slots:
     void add_layer();
     void clear_layers();
     void export_layers_to_csv();
+    void show_info();
     void radargram_mouse_press(QMouseEvent* event);
 };
 

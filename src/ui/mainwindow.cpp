@@ -3,6 +3,7 @@
 #include "src/ui/workers/attribute_analysis_worker.hpp"
 #include "modal_progress_dialog.hpp"
 
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), project(nullptr),
                                           geoscan_project_importer(std::make_shared<GeoScanProjectImporter>()),
                                           csv_trajectory_importer(std::make_shared<CsvTrajectoryImporter>()),
@@ -16,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     configure_plot_widgets();
     QObject::connect(ui->radargram_plot, &QCustomPlot::mousePress, this, &MainWindow::radargram_mouse_press);
     configure_slots();
-    import_project_from_geoscan();  // todo - убрать
 }
+
 
 MainWindow::~MainWindow() {
     delete ui;
@@ -30,6 +31,7 @@ void MainWindow::configure_slots() {
     QObject::connect(ui->action_remove_trace, &QAction::triggered, this, &MainWindow::remove_trace);
     QObject::connect(ui->action_trim, &QAction::triggered, this, &MainWindow::trim);
     QObject::connect(ui->action_remove_air_wave, &QAction::triggered, this, &MainWindow::remove_air_wave);
+    QObject::connect(ui->action_show_info, &QAction::triggered, this, &MainWindow::show_info);
     QObject::connect(ui->action_calculate_depth_section, &QAction::triggered, this, &MainWindow::calculate_depth_section);
     QObject::connect(ui->action_energy, &QAction::triggered, this, &MainWindow::calculate_energy);
     QObject::connect(ui->action_cosine_phase, &QAction::triggered, this, &MainWindow::calculate_cosine_phase);
@@ -48,8 +50,6 @@ void MainWindow::configure_plot_widgets() {
     ui->radargram_plot->yAxis->setRangeReversed(true);
     ui->trace_plot->yAxis->setLabel("Time, ns");
     ui->trace_plot->xAxis->setLabel("Amplitude");
-    ui->trajectory_plot->xAxis->setLabel("Longitude, deg");
-    ui->trajectory_plot->yAxis->setLabel("Latitude, deg");
 }
 
 
@@ -102,6 +102,9 @@ void MainWindow::display_trajectory() {
     ui->trajectory_plot->graph(0)->setData(x, y);
     ui->trajectory_plot->xAxis->setRange(trajectory->x.minCoeff(), trajectory->x.maxCoeff());
     ui->trajectory_plot->yAxis->setRange(trajectory->y.minCoeff(), trajectory->y.maxCoeff());
+    ui->trajectory_plot->graph(0)->setScatterStyle(QCPScatterStyle::ssDot);
+    ui->trajectory_plot->graph(0)->setPen(QPen(QBrush(Qt::blue), 2));
+    ui->trajectory_plot->graph(0)->setLineStyle(QCPGraph::lsNone);
 
     display_position_on_trajectory();
     ui->trajectory_plot->replot();
@@ -159,8 +162,8 @@ void MainWindow::display_radargram() {
     ui->radargram_plot->replot();
 
     display_position_on_radargram();
-    display_depth_section();
     display_layers();
+    display_depth_section();
 }
 
 
@@ -201,6 +204,7 @@ void MainWindow::display_layers() {
         for (int trace = 0; trace < project->get_trace_count(); ++trace) {
             x_layer[trace] = project->trace_to_distance(trace);
             y_layer[trace] = project->sample_to_time(layer->sample_vector(trace));
+            std::cout << x_layer[trace] << " " << y_layer[trace] << std::endl;
         }
         ui->radargram_plot->graph(layer_index)->setData(x_layer, y_layer);
         ui->radargram_plot->graph(layer_index)->setPen(QPen(QBrush(Qt::blue), 2));
@@ -217,34 +221,32 @@ void MainWindow::display_all() {
 }
 
 
-void MainWindow::display_position() {
-    display_position_on_radargram();
-    display_position_on_trace();
-    display_position_on_trajectory();
-}
-
-
-
 void MainWindow::radargram_mouse_press(QMouseEvent* event) {
     QPoint point = event->pos();
     double distance__m = ui->radargram_plot->xAxis->pixelToCoord(point.x());
     double time__ns = ui->radargram_plot->yAxis->pixelToCoord(point.y());
     int trace = project->distance_to_trace(distance__m);
     int sample = project->time_to_sample(time__ns);
-    project->set_position(trace, sample);
-    display_all();
+    try {
+        project->set_position(trace, sample);
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
 void MainWindow::import_project_from_geoscan() {
-//    QString filename = QFileDialog::getOpenFileName(this, "Import from GeoScan", "", "GeoScan radargram (*.gpr2)");
-// todo - вернуть
-    QString filename = "/home/yuri/Documents/study/cpp-course/hometask/diploma/data/P0128_0000.gpr2";
+    QString filename = QFileDialog::getOpenFileName(this, "Import from GeoScan", "", "GeoScan radargram (*.gpr2)");
     if (filename == "") {
         return;
     }
-    project = geoscan_project_importer->import(filename.toStdString());
-    display_all();
+    try {
+        project = geoscan_project_importer->import(filename.toStdString());
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -252,8 +254,12 @@ void MainWindow::reflect() {
     if (project == nullptr) {
         return;
     }
-    project->reflect();
-    display_all();
+    try {
+        project->reflect();
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -261,8 +267,12 @@ void MainWindow::remove_trace() {
     if (project == nullptr) {
         return;
     }
-    project->remove_trace(project->get_position().trace);
-    display_all();
+    try {
+        project->remove_trace(project->get_position().trace);
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -270,8 +280,12 @@ void MainWindow::trim() {
     if (project == nullptr) {
         return;
     }
-    project->trim(project->get_position().sample);
-    display_all();
+    try {
+        project->trim(project->get_position().sample);
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -279,8 +293,12 @@ void MainWindow::remove_air_wave() {
     if (project == nullptr) {
         return;
     }
-    project->remove_air_wave();
-    display_all();
+    try {
+        project->remove_air_wave();
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -288,8 +306,12 @@ void MainWindow::calculate_depth_section() {
     if (project == nullptr) {
         return;
     }
-    project->calculate_depth_section(simple_depth_section_calculator);
-    display_all();
+    try {
+        project->calculate_depth_section(simple_depth_section_calculator);
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -331,8 +353,12 @@ void MainWindow::remove_attribute_analysis() {
     if (project == nullptr) {
         return;
     }
-    project->remove_attribute_analysis();
-    display_all();
+    try {
+        project->remove_attribute_analysis();
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -340,14 +366,16 @@ void MainWindow::import_trajectory_from_csv() {
     if (project == nullptr) {
         return;
     }
-//    QString filename = QFileDialog::getOpenFileName(this, "Import Trajectory from CSV", "", "CSV (*.csv)");
-// todo
-    QString filename = "/home/yuri/Documents/study/cpp-course/hometask/diploma/data/trajectory.csv";
+    QString filename = QFileDialog::getOpenFileName(this, "Import Trajectory from CSV", "", "CSV (*.csv)");
     if (filename == "") {
         return;
     }
-    project->import_trajectory(csv_trajectory_importer, filename.toStdString());
-    display_all();
+    try {
+        project->import_trajectory(csv_trajectory_importer, filename.toStdString());
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -355,13 +383,16 @@ void MainWindow::add_layer() {
     if (project == nullptr) {
         return;
     }
-//    QString layer_name = QInputDialog::getText(this, "Layer Name", "");
-//    if (layer_name.isEmpty()) {
-//        return;
-//    }
-    QString layer_name = "layer name";  // todo
-    project->add_layer(layer_name.toStdString());
-    display_all();
+    QString layer_name = QInputDialog::getText(this, "Layer Name", "");
+    if (layer_name.isEmpty()) {
+        return;
+    }
+    try {
+        project->add_layer(layer_name.toStdString());
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -369,8 +400,12 @@ void MainWindow::clear_layers() {
     if (project == nullptr) {
         return;
     }
-    project->clear_layers();
-    display_all();
+    try {
+        project->clear_layers();
+        display_all();
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
 
@@ -382,6 +417,23 @@ void MainWindow::export_layers_to_csv() {
     if (filename == "") {
         return;
     }
-    project->export_layers_to_csv(filename.toStdString());
+    try {
+        project->export_layers_to_csv(filename.toStdString());
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
 }
 
+
+void MainWindow::show_info() {
+    if (project == nullptr) {
+        return;
+    }
+    try {
+
+        std::string text = project->get_info();
+        QMessageBox::information(this, "Info about Radargram", QString::fromStdString(text));
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(this, "Error", e.what());
+    }
+}
