@@ -19,6 +19,17 @@ struct Radargram {
     float frequency__MHz;
     float antenna_distance__m;
     float velocity__m_per_ns;
+
+    bool operator==(const Radargram& other) const {
+        return trace_matrix == other.trace_matrix &&
+               delta_distance__m == other.delta_distance__m &&
+               delta_time__ns == other.delta_time__ns &&
+               gpr_unit == other.gpr_unit &&
+               antenna_name == other.antenna_name &&
+               frequency__MHz == other.frequency__MHz &&
+               antenna_distance__m == other.antenna_distance__m &&
+               velocity__m_per_ns == other.velocity__m_per_ns;
+    }
 };
 
 

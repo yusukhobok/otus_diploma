@@ -41,13 +41,9 @@ set(PROJECT_SOURCES
         src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
         src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp
         src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
-
         src/trajectory_importers/csv_trajectory_importer.cpp
-
         src/importers/geoscan_project_importer.cpp
-
         src/utils/helpers.hpp
-
         src/project/project.cpp
 )
 
@@ -91,11 +87,29 @@ target_link_libraries(GTest::GTest INTERFACE gtest_main gmock_main)
 
 
 set(TEST_SOURCES
-        tests/test_example.cpp
+        src/domain/radargram.hpp
+        src/domain/attribute_analysis.hpp
+        src/domain/depth_section.hpp
+        src/domain/layer.hpp
+        src/domain/trajectory.hpp
+        src/domain/position.hpp
+        src/calculators/attribute_analysis_calculator/energy_attribute_analysis_calculator.cpp
+        src/calculators/attribute_analysis_calculator/cosine_phase_analysis_calculator.cpp
+        src/calculators/depth_section_calculator/simple_depth_section_calculator.cpp
+        src/trajectory_importers/csv_trajectory_importer.cpp
+        src/importers/geoscan_project_importer.cpp
+        src/utils/helpers.hpp
+        src/project/project.cpp
+
+        tests/calculators/attribute_analysis_calculator_test.cpp
+        tests/calculators/depth_section_calculator_test.cpp
+        tests/project/project_test.cpp
+        tests/project/mock.h
+        tests/utils/helpers_test.cpp
 )
 
 add_executable(gpr_reader_test ${TEST_SOURCES})
-target_link_libraries(gpr_reader_test gtest gtest_main)
+target_link_libraries(gpr_reader_test gtest gtest_main gmock_main Threads::Threads Eigen3::Eigen fmt::fmt)
 add_test(gpr_reader_test gpr_reader_test)
 
 

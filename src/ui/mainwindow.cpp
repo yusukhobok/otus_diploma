@@ -204,7 +204,6 @@ void MainWindow::display_layers() {
         for (int trace = 0; trace < project->get_trace_count(); ++trace) {
             x_layer[trace] = project->trace_to_distance(trace);
             y_layer[trace] = project->sample_to_time(layer->sample_vector(trace));
-            std::cout << x_layer[trace] << " " << y_layer[trace] << std::endl;
         }
         ui->radargram_plot->graph(layer_index)->setData(x_layer, y_layer);
         ui->radargram_plot->graph(layer_index)->setPen(QPen(QBrush(Qt::blue), 2));

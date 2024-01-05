@@ -104,10 +104,8 @@ bool Project::validate() const {
 
 
 void Project::reflect() {
-    std::cout << radargram->trace_matrix(0, 0) << std::endl;
     Eigen::MatrixXf new_trace_matrix = radargram->trace_matrix.colwise().reverse();
     radargram->trace_matrix = new_trace_matrix;
-    std::cout << radargram->trace_matrix(0, 0) << std::endl;
     Eigen::MatrixXf new_attribute_matrix = attribute_analysis->attribute_matrix.colwise().reverse();
     attribute_analysis->attribute_matrix = new_attribute_matrix;
     depth_section->depth_vector.reverse();
