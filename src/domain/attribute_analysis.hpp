@@ -8,6 +8,11 @@ struct AttributeAnalysis {
     bool has_attribute_analysis;
     Eigen::MatrixXf attribute_matrix;
     std::string name;
+
+    bool operator==(const AttributeAnalysis &other) const {
+        return has_attribute_analysis == other.has_attribute_analysis && attribute_matrix == other.attribute_matrix &&
+               name == other.name;
+    }
 };
 
 

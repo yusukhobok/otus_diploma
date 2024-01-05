@@ -8,6 +8,10 @@
 struct DepthSection {
     bool has_depth_section;
     Eigen::VectorXf depth_vector;
+
+    bool operator==(const DepthSection& other) const {
+        return has_depth_section == other.has_depth_section && depth_vector == other.depth_vector;
+    }
 };
 
 

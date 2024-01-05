@@ -35,7 +35,7 @@ void TraceHeader::print() {
 }
 
 
-std::shared_ptr<Project> GeoScanProjectImporter::import(const std::string& filename) {
+std::shared_ptr<Project> GeoScanProjectImporter::import_project(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         throw std::runtime_error("File not exists.");

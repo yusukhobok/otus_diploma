@@ -241,7 +241,7 @@ void MainWindow::import_project_from_geoscan() {
         return;
     }
     try {
-        project = geoscan_project_importer->import(filename.toStdString());
+        project = geoscan_project_importer->import_project(filename.toStdString());
         display_all();
     } catch (const std::runtime_error& e) {
         QMessageBox::critical(this, "Error", e.what());

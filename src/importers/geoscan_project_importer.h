@@ -65,7 +65,7 @@ struct TraceHeader {
 
 class GeoScanProjectImporter : public ProjectImporter {
 public:
-    std::shared_ptr<Project> import(const std::string& filename) override;
+    std::shared_ptr<Project> import_project(const std::string& filename) override;
     virtual ~GeoScanProjectImporter() = default;
 private:
 
