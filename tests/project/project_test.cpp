@@ -307,4 +307,5 @@ TEST_F(
     auto time = project.get_time_max__ns();
 
     ASSERT_NEAR(time, 3.8, 1e-3);
+    ASSERT_NEAR(time, 5.8, 1e-3);
 }
